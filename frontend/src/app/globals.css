@@ -1,0 +1,210 @@
+@import "tailwindcss";
+
+/* =============================================
+   SIDForm Design System — Yellow
+   ============================================= */
+
+:root {
+  /* Colors — Yellow scheme */
+  --background: #FAFAFA;
+  --foreground: #0F172A;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #FDCE1B;
+  --accent-secondary: #FFE98F;
+  --accent-foreground: #1A1A1A;
+  --border: #E2E8F0;
+  --card: #FFFFFF;
+  --ring: #FDCE1B;
+
+  /* Fonts */
+  --font-display: "Calistoga", Georgia, serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* Radius */
+  --radius-sm: 0.375rem;
+  --radius: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+  --shadow-accent: 0 4px 14px rgba(253, 206, 27, 0.25);
+  --shadow-accent-lg: 0 8px 24px rgba(253, 206, 27, 0.35);
+
+  /* Animations */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-standard: all 0.2s ease-out;
+  --transition-enter: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Tailwind v4 Theme */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-display: var(--font-display);
+  --radius-xl: var(--radius-xl);
+  --radius-lg: var(--radius-lg);
+  --radius-md: var(--radius-md);
+}
+
+/* Base Styles */
+*, *::before, *::after {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Gradient Text Utility */
+.gradient-text {
+  background: linear-gradient(to right, #FDCE1B, #FFE98F);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Gradient Background Utility */
+.gradient-bg {
+  background: linear-gradient(135deg, #FDCE1B, #FFE98F);
+}
+
+/* Dot Pattern Texture */
+.dot-pattern {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 3px;
+}
+
+/* Keyframes */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.3); }
+}
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes float-y-delayed {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.animate-float-y {
+  animation: float-y 5s ease-in-out infinite;
+}
+
+.animate-float-y-delayed {
+  animation: float-y-delayed 4s ease-in-out infinite;
+}
+
+.animate-rotate-slow {
+  animation: rotate-slow 60s linear infinite;
+}
+
+/* Focus Ring */
+*:focus-visible {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* Form.io Overrides */
+.formio-component {
+  font-family: var(--font-sans) !important;
+}
+
+.formio-component input,
+.formio-component textarea,
+.formio-component select {
+  font-family: var(--font-sans) !important;
+  border-color: var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  background: transparent !important;
+  transition: var(--transition-standard);
+}
+
+.formio-component input:focus,
+.formio-component textarea:focus,
+.formio-component select:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px rgba(253, 206, 27, 0.15) !important;
+  outline: none !important;
+}
+
+.btn-primary,
+.formio-component .btn-primary {
+  background: linear-gradient(to right, #FDCE1B, #FFE98F) !important;
+  border: none !important;
+  border-radius: var(--radius-xl) !important;
+  color: #1A1A1A !important;
+  font-weight: 500 !important;
+  font-family: var(--font-sans) !important;
+  padding: 0.75rem 1.5rem !important;
+  transition: var(--transition-standard);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-accent-lg);
+  filter: brightness(1.05);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
