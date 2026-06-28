@@ -273,6 +273,34 @@ export default function BuilderPage() {
     URL.revokeObjectURL(url);
   }, [formTitle, fields]);
 
+  /* Save Form to Backend */
+  const saveFormToBackend = async () => {
+    const formPayload = {
+      title: formTitle,
+      description: "Saved from SID Form Builder",
+      components: fields.map((f) => ({
+        key: f.id,
+        type: f.type,
+        label: f.label,
+        input: true,
+      })),
+    };
+    try {
+      const res = await fetch("http://localhost:8001/forms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formPayload),
+      });
+      if (res.ok) {
+        alert("Form successfully saved to Backend API! 🎉");
+      } else {
+        alert("Failed to save form. API Error.");
+      }
+    } catch (err) {
+      alert("Error connecting to backend API (port 8001). Is it running?");
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -302,7 +330,7 @@ export default function BuilderPage() {
             <Button variant="outline" size="sm" onClick={exportJSON} disabled={fields.length === 0}>
               Export JSON
             </Button>
-            <Button size="sm">
+            <Button size="sm" onClick={saveFormToBackend} disabled={fields.length === 0}>
               Publish
             </Button>
           </div>
