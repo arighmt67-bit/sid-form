@@ -286,18 +286,18 @@ export default function BuilderPage() {
       })),
     };
     try {
-      const res = await fetch("http://localhost:8001/forms", {
+      const res = await fetch("/api/forms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formPayload),
       });
       if (res.ok) {
-        alert("Form successfully saved to Backend API! 🎉");
+        alert("Form berhasil disimpan! 🎉");
       } else {
-        alert("Failed to save form. API Error.");
+        alert("Gagal menyimpan form. Coba lagi.");
       }
-    } catch (err) {
-      alert("Error connecting to backend API (port 8001). Is it running?");
+    } catch {
+      alert("Koneksi bermasalah. Cek internet lalu coba lagi.");
     }
   };
 
