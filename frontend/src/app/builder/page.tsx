@@ -206,6 +206,8 @@ export default function BuilderPage() {
   const [formTitle, setFormTitle] = useState("Untitled Form");
   const [fields, setFields] = useState<BuilderField[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
+  const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -273,31 +275,62 @@ export default function BuilderPage() {
     URL.revokeObjectURL(url);
   }, [formTitle, fields]);
 
-  /* Save Form to Backend */
-  const saveFormToBackend = async () => {
+  /* Simpan sebagai draft */
+  const saveDraft = async (): Promise<string | null> => {
     const formPayload = {
       title: formTitle,
-      description: "Saved from SID Form Builder",
+      description: "Dibuat lewat SID Form Builder",
       components: fields.map((f) => ({
         key: f.id,
         type: f.type,
         label: f.label,
         input: true,
+        required: f.required ?? false,
       })),
     };
+
+    const res = await fetch("/api/forms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formPayload),
+    });
+
+    if (res.status === 401) {
+      window.location.href = "/login?next=/builder";
+      return null;
+    }
+    if (!res.ok) throw new Error("Gagal menyimpan form.");
+
+    const saved = await res.json();
+    return saved.id ?? null;
+  };
+
+  /* Simpan lalu publish -> hasilkan link yang bisa diisi karyawan */
+  const publishForm = async () => {
+    setPublishing(true);
+    setPublishedUrl(null);
     try {
-      const res = await fetch("/api/forms", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formPayload),
-      });
-      if (res.ok) {
-        alert("Form berhasil disimpan! 🎉");
-      } else {
-        alert("Gagal menyimpan form. Coba lagi.");
+      const formId = await saveDraft();
+      if (!formId) return;
+
+      const res = await fetch(`/api/forms/${formId}/publish`, { method: "POST" });
+
+      if (res.status === 401) {
+        window.location.href = "/login?next=/builder";
+        return;
       }
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error ?? "Gagal mempublikasikan form.");
+        return;
+      }
+
+      const { url } = await res.json();
+      setPublishedUrl(`${window.location.origin}${url}`);
     } catch {
       alert("Koneksi bermasalah. Cek internet lalu coba lagi.");
+    } finally {
+      setPublishing(false);
     }
   };
 
@@ -330,12 +363,36 @@ export default function BuilderPage() {
             <Button variant="outline" size="sm" onClick={exportJSON} disabled={fields.length === 0}>
               Export JSON
             </Button>
-            <Button size="sm" onClick={saveFormToBackend} disabled={fields.length === 0}>
-              Publish
+            <Button size="sm" onClick={publishForm} disabled={fields.length === 0 || publishing}>
+              {publishing ? "Mempublikasikan…" : "Publish"}
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Link hasil publish */}
+      {publishedUrl && (
+        <div className="border-b border-green-500/20 bg-green-500/5">
+          <div className="mx-auto max-w-7xl px-6 py-3 flex flex-wrap items-center gap-3">
+            <span className="text-sm text-green-700 dark:text-green-400 font-medium">
+              ✓ Form aktif — bagikan link ini ke karyawan:
+            </span>
+            <code className="flex-1 min-w-0 truncate rounded-md bg-background border border-border px-2.5 py-1 text-xs font-mono">
+              {publishedUrl}
+            </code>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigator.clipboard.writeText(publishedUrl)}
+            >
+              Salin
+            </Button>
+            <a href={publishedUrl} target="_blank" rel="noreferrer">
+              <Button variant="ghost" size="sm">Buka</Button>
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Builder Body */}
       <div className="flex-1 bg-muted/30">
