@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
-import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { getSupabaseAdminSafe } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/auth/session";
 import { validateSubmission } from "@/lib/forms/validate";
 import type { FormSchema } from "@/lib/forms/types";
@@ -37,16 +37,32 @@ export async function POST(
     return NextResponse.json({ error: "Body JSON tidak valid" }, { status: 400 });
   }
 
-  const supabase = getSupabaseAdmin();
+  const supabase = getSupabaseAdminSafe();
+  if (!supabase) {
+    return NextResponse.json(
+      { error: "Layanan sedang tidak tersedia. Hubungi admin IT." },
+      { status: 503 }
+    );
+  }
 
-  const { data: form, error } = await supabase
-    .from("forms")
-    .select("id, title, schema, status, require_login, schema_version")
-    .eq("slug", slug)
-    .single();
+  let form;
+  try {
+    const { data, error } = await supabase
+      .from("forms")
+      .select("id, title, schema, status, require_login, schema_version")
+      .eq("slug", slug)
+      .single();
 
-  if (error || !form) {
-    return NextResponse.json({ error: "Form tidak ditemukan" }, { status: 404 });
+    if (error || !data) {
+      return NextResponse.json({ error: "Form tidak ditemukan" }, { status: 404 });
+    }
+    form = data;
+  } catch (e) {
+    console.error("[submit] koneksi DB gagal:", (e as Error).message);
+    return NextResponse.json(
+      { error: "Layanan sedang tidak tersedia. Coba beberapa saat lagi." },
+      { status: 503 }
+    );
   }
 
   if (form.status !== "published") {
