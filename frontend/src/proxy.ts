@@ -43,9 +43,21 @@ export async function proxy(req: NextRequest) {
   );
 
   if (isProtected && (!user || !isAllowedEmail(user.email))) {
+    if (user) {
+      await supabase.auth.signOut();
+    }
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("next", path);
-    return NextResponse.redirect(loginUrl);
+    
+    const redirectResponse = NextResponse.redirect(loginUrl);
+    
+    // Salin cookies dari objek response (yang ter-update lewat setAll)
+    // agar cookie signOut atau refresh-token benar-benar sampai ke browser.
+    response.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value);
+    });
+    
+    return redirectResponse;
   }
 
   return response;

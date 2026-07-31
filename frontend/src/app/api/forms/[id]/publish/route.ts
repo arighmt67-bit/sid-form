@@ -43,7 +43,7 @@ export async function POST(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Form tidak ditemukan" }, { status: 404 });
   }
 
-  if (form.owner_id && form.owner_id !== user.id && user.role !== "admin") {
+  if (form.owner_id !== user.id && user.role !== "admin") {
     return NextResponse.json({ error: "Bukan pemilik form ini" }, { status: 403 });
   }
 
@@ -117,6 +117,20 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
 
   const { id } = await params;
   const supabase = getSupabaseAdmin();
+
+  const { data: form, error: fetchErr } = await supabase
+    .from("forms")
+    .select("id, owner_id")
+    .eq("id", id)
+    .single();
+
+  if (fetchErr || !form) {
+    return NextResponse.json({ error: "Form tidak ditemukan" }, { status: 404 });
+  }
+
+  if (form.owner_id !== user.id && user.role !== "admin") {
+    return NextResponse.json({ error: "Bukan pemilik form ini" }, { status: 403 });
+  }
 
   const { data, error } = await supabase
     .from("forms")

@@ -28,7 +28,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Form tidak ditemukan" }, { status: 404 });
   }
 
-  if (form.owner_id && form.owner_id !== user.id && user.role !== "admin") {
+  if (form.owner_id !== user.id && user.role !== "admin") {
     return NextResponse.json({ error: "Bukan pemilik form ini" }, { status: 403 });
   }
 
@@ -66,7 +66,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     }
 
     const filename = `${form.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.csv`;
-    return new NextResponse("\uFEFF" + lines.join("\n"), {
+    return new NextResponse("\uFEFF" + lines.join("\r\n"), {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
         "Content-Disposition": `attachment; filename="${filename}"`,

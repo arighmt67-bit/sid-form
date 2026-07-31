@@ -14,7 +14,7 @@ async function assertOwner(id: string, user: AppUser) {
     .single();
 
   if (!data) return { ok: false as const, status: 404, error: "Form tidak ditemukan" };
-  if (data.owner_id && data.owner_id !== user.id && user.role !== "admin") {
+  if (data.owner_id !== user.id && user.role !== "admin") {
     return { ok: false as const, status: 403, error: "Bukan pemilik form ini" };
   }
   return { ok: true as const };

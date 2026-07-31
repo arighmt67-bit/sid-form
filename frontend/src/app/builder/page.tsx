@@ -475,7 +475,7 @@ export default function BuilderPage() {
                     </div>
                     <div className="space-y-1 max-h-96 overflow-y-auto">
                       {fields.map((f) => (
-                        <div key={f.id} className="flex items-center justify-between text-xs py-1.5 px-2 rounded hover:bg-muted cursor-pointer">
+                        <div key={f.id} className="group flex items-center justify-between text-xs py-1.5 px-2 rounded hover:bg-muted cursor-pointer">
                           <div className="flex items-center gap-2">
                             <span className="w-4 text-center text-muted-foreground">
                               {FIELD_TYPES.find((ft) => ft.type === f.type)?.icon}

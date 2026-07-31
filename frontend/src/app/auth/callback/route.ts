@@ -45,11 +45,15 @@ export async function GET(req: NextRequest) {
   // Gerbang allowlist — tolak domain di luar organisasi.
   if (!isAllowedEmail(data.user.email)) {
     await supabase.auth.signOut();
-    return NextResponse.redirect(
-      `${origin}/login?error=domain_not_allowed&email=${encodeURIComponent(
-        data.user.email
-      )}`
-    );
+    
+    // Gunakan response yang sama agar cookie penghapusan session dari signOut()
+    // benar-benar terkirim ke browser, bukan dibuang.
+    const loginUrl = new URL("/login", req.url);
+    loginUrl.searchParams.set("error", "domain_not_allowed");
+    loginUrl.searchParams.set("email", data.user.email);
+    
+    response.headers.set("Location", loginUrl.toString());
+    return response;
   }
 
   return response;
